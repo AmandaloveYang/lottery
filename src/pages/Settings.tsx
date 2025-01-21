@@ -12,6 +12,55 @@ const Settings: React.FC = () => {
   });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [dialog, setDialog] = useState({ isOpen: false, message: "" });
+  const [sortConfig, setSortConfig] = useState<{
+    key: "count" | "level";
+    direction: "asc" | "desc" | null;
+  }>({ key: "level", direction: "desc" });
+
+  const sortedPrizes = React.useMemo(() => {
+    const sortedItems = [...prizes];
+    if (sortConfig.direction !== null) {
+      sortedItems.sort((a, b) => {
+        if (sortConfig.key === "level") {
+          // 特别处理等级排序
+          const aLevel = a.level === 4 ? -1 : a.level; // 特别奖排在最前面
+          const bLevel = b.level === 4 ? -1 : b.level;
+
+          if (aLevel < bLevel) {
+            return sortConfig.direction === "asc" ? -1 : 1;
+          }
+          if (aLevel > bLevel) {
+            return sortConfig.direction === "asc" ? 1 : -1;
+          }
+          return 0;
+        } else {
+          // 其他字段正常排序
+          if (a[sortConfig.key] < b[sortConfig.key]) {
+            return sortConfig.direction === "asc" ? -1 : 1;
+          }
+          if (a[sortConfig.key] > b[sortConfig.key]) {
+            return sortConfig.direction === "asc" ? 1 : -1;
+          }
+          return 0;
+        }
+      });
+    }
+    return sortedItems;
+  }, [prizes, sortConfig]);
+
+  const requestSort = (key: "count" | "level") => {
+    let direction: "asc" | "desc" | null = "asc";
+    if (sortConfig.key === key) {
+      if (sortConfig.direction === "asc") {
+        direction = "desc";
+      } else if (sortConfig.direction === "desc") {
+        direction = "asc";
+      }
+    } else if (key === "level") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
 
   const handleAddPrize = () => {
     if (!newPrize.name.trim()) {
@@ -60,6 +109,21 @@ const Settings: React.FC = () => {
       handleEditPrize(prize);
     } else if (e.key === "Escape") {
       setEditingId(null);
+    }
+  };
+
+  const getLevelText = (level: number) => {
+    switch (level) {
+      case 1:
+        return "一等奖";
+      case 2:
+        return "二等奖";
+      case 3:
+        return "三等奖";
+      case 4:
+        return "特别奖";
+      default:
+        return `${level}等奖`;
     }
   };
 
@@ -136,22 +200,38 @@ const Settings: React.FC = () => {
           <table className="min-w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-xs font-medium text-left text-gray-500 uppercase">
+                <th className="px-6 py-3 w-1/3 text-xs font-medium text-left text-gray-500 uppercase">
                   奖品名称
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-left text-gray-500 uppercase">
+                <th
+                  className="px-6 py-3 w-1/4 text-xs font-medium text-left text-gray-500 uppercase cursor-pointer hover:bg-gray-100"
+                  onClick={() => requestSort("count")}
+                >
                   数量
+                  {sortConfig.key === "count" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-left text-gray-500 uppercase">
+                <th
+                  className="px-6 py-3 w-1/4 text-xs font-medium text-left text-gray-500 uppercase cursor-pointer hover:bg-gray-100"
+                  onClick={() => requestSort("level")}
+                >
                   等级
+                  {sortConfig.key === "level" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-left text-gray-500 uppercase">
+                <th className="px-6 py-3 w-1/6 text-xs font-medium text-left text-gray-500 uppercase">
                   操作
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {prizes.map((prize) => (
+              {sortedPrizes.map((prize) => (
                 <tr key={prize.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {editingId === prize.id ? (
@@ -189,7 +269,7 @@ const Settings: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">{prize.count}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {`${prize.level} 等奖`}
+                    {getLevelText(prize.level)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <button
