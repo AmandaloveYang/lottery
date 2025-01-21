@@ -10,7 +10,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
   const navItems = [
     { name: "开始抽奖", path: "/" },
-    { name: "奖品列表", path: "/prizes" },
+    { name: "奖品列表", path: "/prize-list" },
     { name: "参与者", path: "/participants" },
     { name: "历史记录", path: "/history" },
     { name: "设置", path: "/settings" },

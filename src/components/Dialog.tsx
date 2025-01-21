@@ -1,4 +1,5 @@
 import React from "react";
+import { Dialog as HeadlessDialog } from "@headlessui/react";
 
 interface DialogProps {
   isOpen: boolean;
@@ -7,26 +8,26 @@ interface DialogProps {
 }
 
 const Dialog: React.FC<DialogProps> = ({ isOpen, message, onClose }) => {
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div
-        className="fixed inset-0 bg-black opacity-30"
-        onClick={onClose}
-      ></div>
-      <div className="relative bg-white rounded-lg p-6 shadow-xl">
-        <p className="mb-4">{message}</p>
-        <div className="text-right">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
-          >
-            确定
-          </button>
+    <HeadlessDialog open={isOpen} onClose={onClose} className="relative z-50">
+      {/* 背景遮罩 */}
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
+      {/* 对话框容器 */}
+      <div className="flex fixed inset-0 justify-center items-center p-4">
+        <div className="p-6 w-full max-w-md bg-white rounded-lg shadow-xl">
+          <div className="mb-4 text-base">{message}</div>
+          <div className="text-right">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
+            >
+              确定
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </HeadlessDialog>
   );
 };
 
