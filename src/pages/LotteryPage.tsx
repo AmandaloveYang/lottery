@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useApp } from "../context/AppContext";
 import { Participant } from "../types";
 
@@ -18,7 +18,7 @@ export default function LotteryPage() {
   >([]);
   const [currentPrize, setCurrentPrize] = useState<string>("");
 
-  // 初始化可用参与者列表和当前奖品
+  // 修改初始化当前奖品的逻辑
   useEffect(() => {
     // 从localStorage获取已中奖名单，避免重复中奖
     const winners = JSON.parse(localStorage.getItem("winners") || "[]");
@@ -28,12 +28,12 @@ export default function LotteryPage() {
     const available = participants.filter((p) => !winnerIds.has(p.id));
     setAvailableParticipants(available);
 
-    // 设置当前要抽取的奖品
-    const remainingPrize = prizes.find((p) => p.count > 0);
-    if (remainingPrize) {
-      setCurrentPrize(
-        `${remainingPrize.name}(${getLevelText(remainingPrize.level)})`
-      );
+    // 使用 getNextPrize 函数来设置当前要抽取的奖品
+    const nextPrize = getNextPrize();
+    if (nextPrize) {
+      setCurrentPrize(`${nextPrize.name}(${getLevelText(nextPrize.level)})`);
+    } else {
+      setCurrentPrize("");
     }
   }, [participants, prizes]);
 
@@ -65,6 +65,7 @@ export default function LotteryPage() {
     }
   }, [isDrawing, availableParticipants]);
 
+  // 修改 handleStartDraw 函数
   const handleStartDraw = () => {
     if (availableParticipants.length === 0) {
       alert("没有可参与抽奖的人员");
@@ -74,6 +75,13 @@ export default function LotteryPage() {
       alert("已经没有可抽取的奖品了");
       return;
     }
+
+    // 开始抽奖前更新当前奖品显示
+    const nextPrize = getNextPrize();
+    if (nextPrize) {
+      setCurrentPrize(`${nextPrize.name}(${getLevelText(nextPrize.level)})`);
+    }
+
     setIsDrawing(true);
   };
 
@@ -141,6 +149,17 @@ export default function LotteryPage() {
     }
   };
 
+  // 计算每个等级的剩余奖品数量
+  const remainingPrizesByLevel = useMemo(() => {
+    const result: { [key: number]: number } = {};
+    prizes.forEach((prize) => {
+      if (prize.count > 0) {
+        result[prize.level] = (result[prize.level] || 0) + prize.count;
+      }
+    });
+    return result;
+  }, [prizes]);
+
   return (
     <div className="min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center space-y-8">
       {/* 抽奖展示区 */}
@@ -162,8 +181,25 @@ export default function LotteryPage() {
             : "等待开始"}
         </div>
 
+        {/* 添加奖品等级剩余数量显示 */}
+        <div className="grid grid-cols-4 gap-4 mt-4">
+          {Object.entries(remainingPrizesByLevel).map(([level, count]) => (
+            <div
+              key={level}
+              className="px-4 py-2 text-center bg-gray-50 rounded-lg"
+            >
+              <div className="text-sm text-gray-500">
+                {getLevelText(Number(level))}
+              </div>
+              <div className="mt-1 text-lg font-medium text-gray-700">
+                剩余 {count}
+              </div>
+            </div>
+          ))}
+        </div>
+
         <div className="text-sm text-gray-500">
-          参与者: {availableParticipants.length} | 剩余奖品: {remainingPrizes}
+          参与者: {availableParticipants.length} | 总剩余奖品: {remainingPrizes}
         </div>
       </div>
 

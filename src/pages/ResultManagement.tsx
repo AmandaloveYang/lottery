@@ -12,6 +12,7 @@ interface Winner {
 
 const ResultManagement: React.FC = () => {
   const [winners, setWinners] = useState<Winner[]>([]);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   useEffect(() => {
     const savedWinners = JSON.parse(localStorage.getItem("winners") || "[]");
@@ -49,11 +50,27 @@ const ResultManagement: React.FC = () => {
     });
   };
 
+  const handleClearHistory = () => {
+    localStorage.removeItem("winners");
+    setWinners([]);
+    setShowConfirmDialog(false);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">中奖记录</h2>
-        <div className="text-gray-500">总计: {winners.length} 条记录</div>
+        <div className="flex gap-4 items-center">
+          <div className="text-gray-500">总计: {winners.length} 条记录</div>
+          {winners.length > 0 && (
+            <button
+              onClick={() => setShowConfirmDialog(true)}
+              className="px-4 py-2 text-sm text-red-600 rounded border border-red-600 hover:bg-red-50"
+            >
+              清空记录
+            </button>
+          )}
+        </div>
       </div>
 
       {winners.length > 0 ? (
@@ -104,6 +121,31 @@ const ResultManagement: React.FC = () => {
       ) : (
         <div className="p-8 text-center text-gray-500 bg-white rounded-lg shadow">
           暂无中奖记录
+        </div>
+      )}
+
+      {showConfirmDialog && (
+        <div className="flex fixed inset-0 justify-center items-center bg-black bg-opacity-50">
+          <div className="p-6 bg-white rounded-lg shadow-xl">
+            <h3 className="mb-4 text-lg font-semibold">确认清空</h3>
+            <p className="mb-6 text-gray-600">
+              确定要清空所有中奖记录吗？此操作不可撤销。
+            </p>
+            <div className="flex gap-4 justify-end">
+              <button
+                onClick={() => setShowConfirmDialog(false)}
+                className="px-4 py-2 text-gray-600 rounded border hover:bg-gray-50"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleClearHistory}
+                className="px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700"
+              >
+                确认清空
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
