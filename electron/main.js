@@ -15,7 +15,10 @@ function createWindow() {
     // 开发环境下连接 vite 开发服务器
     if (process.env.NODE_ENV === 'development') {
         win.loadURL('http://localhost:5173');
+        // 打开开发工具
+        win.webContents.openDevTools();
     } else {
+        // 生产环境加载打包后的文件
         win.loadFile(path.join(__dirname, '../dist/index.html'));
     }
 }

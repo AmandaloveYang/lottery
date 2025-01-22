@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./components/Layout/MainLayout";
 import ParticipantManagement from "./pages/ParticipantManagement";
 import LotteryPage from "./pages/LotteryPage";
@@ -11,7 +11,7 @@ import { AppProvider } from "./context/AppContext";
 const App: React.FC = () => {
   return (
     <AppProvider>
-      <BrowserRouter>
+      <HashRouter>
         <MainLayout>
           <Routes>
             <Route path="/" element={<LotteryPage />} />
@@ -21,7 +21,7 @@ const App: React.FC = () => {
             <Route path="/settings" element={<Settings />} />
           </Routes>
         </MainLayout>
-      </BrowserRouter>
+      </HashRouter>
     </AppProvider>
   );
 };
