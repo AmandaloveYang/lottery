@@ -4,7 +4,7 @@ import { useApp } from "../context/AppContext";
 import Dialog from "../components/Dialog";
 
 const Settings: React.FC = () => {
-  const { setRemainingPrizes, prizes, setPrizes } = useApp();
+  const { setRemainingPrizes, prizes, setPrizes, setDrawOrder } = useApp();
   const [newPrize, setNewPrize] = useState({
     name: "",
     count: 1,
@@ -16,6 +16,12 @@ const Settings: React.FC = () => {
     key: "count" | "level";
     direction: "asc" | "desc" | null;
   }>({ key: "level", direction: "desc" });
+
+  // 添加抽奖顺序设置
+  const [drawOrder, setDrawOrderState] = useState(() => {
+    // 从 localStorage 获取保存的设置，默认按等级从高到低
+    return localStorage.getItem("drawOrder") || "level-desc";
+  });
 
   const sortedPrizes = React.useMemo(() => {
     const sortedItems = [...prizes];
@@ -127,9 +133,59 @@ const Settings: React.FC = () => {
     }
   };
 
+  // 修改抽奖顺序设置
+  const handleDrawOrderChange = (order: string) => {
+    setDrawOrderState(order);
+    setDrawOrder(order); // 同步到 Context
+    localStorage.setItem("drawOrder", order);
+
+    // 显示对应的提示消息
+    let message = "";
+    switch (order) {
+      case "level-desc":
+        message = "已设置为按奖品等级从高到低的顺序抽奖";
+        break;
+      case "level-asc":
+        message = "已设置为按奖品等级从低到高的顺序抽奖";
+        break;
+      case "random":
+        message = "已设置为随机抽取奖品";
+        break;
+    }
+    setDialog({ isOpen: true, message });
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="mb-4 text-2xl font-bold">奖品设置</h2>
+
+      {/* 添加抽奖顺序设置区域 */}
+      <div className="p-6 bg-white rounded-lg shadow">
+        <h3 className="mb-4 text-lg font-semibold">抽奖顺序设置</h3>
+        <div className="space-y-2">
+          <div className="flex items-center space-x-4">
+            <label className="text-sm font-medium text-gray-700">
+              抽奖顺序
+            </label>
+            <select
+              value={drawOrder}
+              onChange={(e) => handleDrawOrderChange(e.target.value)}
+              className="px-3 py-2 rounded-md border"
+            >
+              <option value="level-desc">按奖品等级从高到低</option>
+              <option value="level-asc">按奖品等级从低到高</option>
+              <option value="random">随机抽取</option>
+            </select>
+          </div>
+          <p className="text-sm text-gray-500">
+            {drawOrder === "level-desc" &&
+              "将按照奖品等级从高到低的顺序进行抽奖（特别奖 → 一等奖 → 二等奖 → 三等奖）"}
+            {drawOrder === "level-asc" &&
+              "将按照奖品等级从低到高的顺序进行抽奖（三等奖 → 二等奖 → 一等奖 → 特别奖）"}
+            {drawOrder === "random" && "将随机抽取任意等级的奖品"}
+          </p>
+        </div>
+      </div>
 
       {/* 添加奖品表单 */}
       <div className="p-6 bg-white rounded-lg shadow">

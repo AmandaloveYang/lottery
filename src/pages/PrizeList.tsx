@@ -4,6 +4,11 @@ import { useApp } from "../context/AppContext";
 const PrizeList: React.FC = () => {
   const { prizes } = useApp();
 
+  // 计算奖品总数
+  const totalPrizes = React.useMemo(() => {
+    return prizes.reduce((sum, prize) => sum + prize.count, 0);
+  }, [prizes]);
+
   // 按等级排序显示奖品
   const sortedPrizes = React.useMemo(() => {
     return [...prizes].sort((a, b) => {
@@ -39,7 +44,11 @@ const PrizeList: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">奖品列表</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">奖品列表</h2>
+        <div className="text-gray-500">总数量：{totalPrizes}</div>
+      </div>
+
       {sortedPrizes.length > 0 ? (
         <div className="bg-white rounded-lg shadow">
           <table className="min-w-full">

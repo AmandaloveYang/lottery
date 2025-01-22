@@ -9,6 +9,8 @@ interface AppContextType {
   setRemainingPrizes: (count: number | ((prev: number) => number)) => void;
   prizes: Prize[];
   setPrizes: (prizes: Prize[]) => void;
+  drawOrder: string;
+  setDrawOrder: (order: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -26,6 +28,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   const [remainingPrizes, setRemainingPrizes] = useState(() => {
     const savedPrizes = storage.load<Prize[]>(STORAGE_KEYS.PRIZES, []);
     return savedPrizes.reduce((sum, prize) => sum + prize.count, 0);
+  });
+  const [drawOrder, setDrawOrder] = useState(() => {
+    return localStorage.getItem("drawOrder") || "level-desc";
   });
 
   // 当数据变化时保存
@@ -46,6 +51,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         setRemainingPrizes,
         prizes,
         setPrizes,
+        drawOrder,
+        setDrawOrder,
       }}
     >
       {children}

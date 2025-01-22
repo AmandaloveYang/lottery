@@ -3,7 +3,14 @@ import { useApp } from "../context/AppContext";
 import { Participant } from "../types";
 
 export default function LotteryPage() {
-  const { participants, remainingPrizes, prizes } = useApp();
+  const {
+    participants,
+    remainingPrizes,
+    prizes,
+    setPrizes,
+    setRemainingPrizes,
+    drawOrder,
+  } = useApp();
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentWinner, setCurrentWinner] = useState<Participant | null>(null);
   const [availableParticipants, setAvailableParticipants] = useState<
@@ -70,6 +77,70 @@ export default function LotteryPage() {
     setIsDrawing(true);
   };
 
+  // 根据设置的抽奖顺序获取下一个要抽取的奖品
+  const getNextPrize = () => {
+    const availablePrizes = prizes.filter((p) => p.count > 0);
+
+    if (drawOrder === "random") {
+      // 随机抽取任意奖品
+      return availablePrizes[
+        Math.floor(Math.random() * availablePrizes.length)
+      ];
+    } else {
+      // 按等级排序
+      const sortedPrizes = [...availablePrizes].sort((a, b) => {
+        const aLevel = a.level === 4 ? -1 : a.level;
+        const bLevel = b.level === 4 ? -1 : b.level;
+        return drawOrder === "level-desc" ? aLevel - bLevel : bLevel - aLevel;
+      });
+      return sortedPrizes[0];
+    }
+  };
+
+  // 修改停止抽奖的逻辑
+  const handleStopDraw = () => {
+    setIsDrawing(false);
+    const nextPrize = getNextPrize();
+    if (nextPrize && currentWinner) {
+      // 更新奖品数量
+      const updatedPrizes = prizes.map((prize) =>
+        prize.id === nextPrize.id ? { ...prize, count: prize.count - 1 } : prize
+      );
+      setPrizes(updatedPrizes);
+      setRemainingPrizes((prev) => prev - 1);
+
+      // 保存中奖记录
+      const winners = JSON.parse(localStorage.getItem("winners") || "[]");
+      winners.push({
+        participantId: currentWinner.id,
+        prizeId: nextPrize.id,
+        prizeName: nextPrize.name,
+        prizeLevel: nextPrize.level,
+        winnerName: currentWinner.name,
+        winnerDepartment: currentWinner.department,
+        timestamp: new Date().toISOString(),
+      });
+      localStorage.setItem("winners", JSON.stringify(winners));
+
+      // 更新当前奖品显示
+      const nextAvailablePrize = getNextPrize();
+      if (nextAvailablePrize) {
+        setCurrentPrize(
+          `${nextAvailablePrize.name}(${getLevelText(
+            nextAvailablePrize.level
+          )})`
+        );
+      } else {
+        setCurrentPrize("");
+      }
+
+      // 更新可用参与者列表
+      setAvailableParticipants((prev) =>
+        prev.filter((p) => p.id !== currentWinner.id)
+      );
+    }
+  };
+
   return (
     <div className="min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center space-y-8">
       {/* 抽奖展示区 */}
@@ -99,7 +170,7 @@ export default function LotteryPage() {
       {/* 控制按钮 */}
       <div className="flex space-x-4">
         <button
-          onClick={() => (isDrawing ? setIsDrawing(false) : handleStartDraw())}
+          onClick={() => (isDrawing ? handleStopDraw() : handleStartDraw())}
           className={`px-8 py-3 rounded-full font-medium text-white shadow-lg transition-all
             ${
               isDrawing
