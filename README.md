@@ -27,6 +27,7 @@
 ```bash
 # 克隆项目
 git clone
+# 打开文件
 cd lottery
 
 # 安装依赖
