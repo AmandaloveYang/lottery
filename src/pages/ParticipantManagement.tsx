@@ -3,6 +3,7 @@ import * as XLSX from "xlsx";
 import { ParticipantExcel } from "../types/excel";
 import { Participant } from "../types";
 import { useApp } from "../context/AppContext";
+import Dialog from "../components/Dialog";
 
 const ParticipantManagement: React.FC = () => {
   const { setParticipants } = useApp();
@@ -14,6 +15,11 @@ const ParticipantManagement: React.FC = () => {
     name: "",
     department: "",
   });
+  const [dialog, setDialog] = useState<{
+    isOpen: boolean;
+    message: string;
+    onConfirm?: () => void;
+  }>({ isOpen: false, message: "" });
 
   // 从 localStorage 加载数据
   useEffect(() => {
@@ -38,6 +44,12 @@ const ParticipantManagement: React.FC = () => {
       const workbook = XLSX.read(data);
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json<ParticipantExcel>(worksheet);
+
+      // 检查是否有数据
+      if (jsonData.length === 0) {
+        setDialog({ isOpen: true, message: "Excel 文件中没有数据" });
+        return;
+      }
 
       // 检查新导入的数据中是否有重复工号
       const duplicateIds = jsonData
@@ -66,14 +78,17 @@ const ParticipantManagement: React.FC = () => {
       const newParticipants = jsonData.map((row) => ({
         id: crypto.randomUUID(),
         name: row.姓名,
-        department: row.部门,
+        department: row.部门 || "",
         employeeId: row.工号,
       }));
 
       saveParticipants(newParticipants);
     } catch (error) {
       console.error("Excel 解析错误:", error);
-      alert("Excel 格式不正确，请使用正确的模板");
+      setDialog({
+        isOpen: true,
+        message: "Excel 格式不正确，请使用正确的模板",
+      });
     }
   };
 
@@ -102,7 +117,7 @@ const ParticipantManagement: React.FC = () => {
     if (file && (file.name.endsWith(".xlsx") || file.name.endsWith(".xls"))) {
       handleExcelData(file);
     } else {
-      alert("请上传 Excel 文件 (.xlsx 或 .xls)");
+      setDialog({ isOpen: true, message: "请上传 Excel 文件 (.xlsx 或 .xls)" });
     }
   }, []);
 
@@ -135,7 +150,7 @@ const ParticipantManagement: React.FC = () => {
   // 添加新参与者
   const handleAddParticipant = () => {
     if (!newParticipant.employeeId.trim() || !newParticipant.name.trim()) {
-      alert("请填写工号和姓名");
+      setDialog({ isOpen: true, message: "请填写工号和姓名" });
       return;
     }
 
@@ -143,7 +158,10 @@ const ParticipantManagement: React.FC = () => {
       (p) => p.employeeId === newParticipant.employeeId.trim()
     );
     if (isDuplicate) {
-      alert(`工号 ${newParticipant.employeeId} 已存在`);
+      setDialog({
+        isOpen: true,
+        message: `工号 ${newParticipant.employeeId} 已存在`,
+      });
       return;
     }
 
@@ -166,7 +184,7 @@ const ParticipantManagement: React.FC = () => {
   // 编辑参与者
   const handleEditParticipant = (participant: Participant) => {
     if (!participant.employeeId.trim() || !participant.name.trim()) {
-      alert("请填写工号和姓名");
+      setDialog({ isOpen: true, message: "请填写工号和姓名" });
       return;
     }
 
@@ -177,11 +195,19 @@ const ParticipantManagement: React.FC = () => {
     setEditingId(null);
   };
 
-  // 添加清空参与者列表的功能
+  // 修改清空参与者列表的功能
   const handleClearParticipants = () => {
-    if (window.confirm("确定要清空所有参与者吗？此操作不可恢复。")) {
-      saveParticipants([]);
-    }
+    setDialog({
+      isOpen: true,
+      message: "确定要清空所有参与者吗？此操作不可恢复。",
+      onConfirm: () => {
+        setLocalParticipants([]);
+        setParticipants([]);
+        setEditingId(null);
+        setNewParticipant({ employeeId: "", name: "", department: "" });
+        setIsDragging(false);
+      },
+    });
   };
 
   return (
@@ -440,6 +466,13 @@ const ParticipantManagement: React.FC = () => {
           </div>
         </div>
       )}
+
+      <Dialog
+        isOpen={dialog.isOpen}
+        message={dialog.message}
+        onClose={() => setDialog({ isOpen: false, message: "" })}
+        onConfirm={dialog.onConfirm}
+      />
     </div>
   );
 };
