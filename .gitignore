@@ -1,6 +1,8 @@
 # 依赖相关
-node_modules # npm/yarn 依赖包目录
-.cursorrules # Cursor编辑器配置文件
+node_modules      # npm/yarn 依赖包目录
+.cursorrules      # Cursor编辑器配置文件
+node_modules/.bin # 命令行工具目录
+package-lock.json # npm 包锁定文件
 
 # 构建输出
 dist     # 构建输出目录
@@ -31,3 +33,14 @@ yarn-error.log* # yarn错误日志
 # 测试覆盖率报告
 coverage/    # 测试覆盖率报告目录
 .nyc_output/ # NYC测试覆盖率输出
+
+# 命令行工具
+**/node_modules/.bin/* # 所有.bin目录下的文件
+*.cmd                  # Windows命令文件
+*.ps1                  # PowerShell脚本
+acorn*
+asar*
+autoprefixer*
+browserslist*
+conc*
+concurrent*
