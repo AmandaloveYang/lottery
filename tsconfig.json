@@ -2,7 +2,6 @@
   "compilerOptions": {
     "target": "ESNext",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "types": ["@testing-library/jest-dom"],
     "module": "ESNext",
     "skipLibCheck": true,
     "esModuleInterop": true,

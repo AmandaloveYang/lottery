@@ -1,15 +1,18 @@
 {
   "name": "lottery-system",
   "version": "1.0.0",
+  "author": {
+    "name": "元之贞"
+  },
   "description": "基于 React 和 Electron 的抽奖系统",
   "main": "electron/main.js",
   "scripts": {
     "dev": "vite",
     "start": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc --noEmit && vite build",
     "electron:dev": "cross-env NODE_ENV=development concurrently \"npm run start\" \"wait-on tcp:5173 && electron .\"",
     "electron:build": "npm run build && electron-builder",
-    "test": "jest --passWithNoTests",
+    "test": "jest",
     "test:coverage": "jest --coverage --passWithNoTests"
   },
   "dependencies": {
@@ -46,7 +49,7 @@
     "appId": "com.lottery.app",
     "productName": "抽奖系统",
     "directories": {
-      "output": "dist"
+      "output": "release/${version}"
     },
     "files": [
       "dist/**/*",
@@ -54,13 +57,21 @@
     ],
     "win": {
       "target": [
-        "nsis"
-      ]
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "signingHashAlgorithms": null,
+      "signAndEditExecutable": false
     },
     "nsis": {
       "oneClick": true,
       "perMachine": false,
-      "allowToChangeInstallationDirectory": false
+      "allowToChangeInstallationDirectory": false,
+      "artifactName": "${productName}-Setup-${version}.${ext}"
     }
   }
 }
