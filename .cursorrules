@@ -1,0 +1,47 @@
+# **Project: React TypeScript Application Development Standards**
+
+## **Coding Standards**
+
+- All new code must use **TypeScript**.
+- Explicitly define types for variables, function parameters, and return values. Avoid using `any`.
+- Prefer **functional components** and **React Hooks** over class components.
+- Use `interface` or `type` to define component props.
+- Follow consistent naming conventions:
+  - Use `PascalCase` for file names (e.g., `MyComponent.tsx`).
+  - Use uppercase with underscores for constants (e.g., `API_BASE_URL`).
+
+## **Style Guidelines**
+
+- Follow the [Airbnb React/JSX Style Guide](https://github.com/airbnb/javascript/tree/master/react).
+- Use **2 spaces** for indentation.
+- Limit lines to a maximum of **100 characters**.
+- Organize imports:
+  1. External libraries.
+  2. Internal components.
+  3. Styles and assets.
+
+## **Best Practices**
+
+- Use **Tailwind CSS** for responsive designs.
+- Optimize performance using `React.memo()` where appropriate.
+- Prefer `async/await` over `.then()` for handling asynchronous operations.
+- Ensure accessibility (e.g., proper ARIA roles and semantic HTML).
+
+## **Testing**
+
+- Write unit tests for all new components and utilities.
+- Aim for at least **80% test coverage**.
+- Use **Jest** and **React Testing Library** for testing.
+
+## **Documentation**
+
+- Add **JSDoc comments** for all functions and components.
+- Keep `README.md` updated with:
+  - Project setup instructions.
+  - Contribution guidelines.
+  - Key features and usage examples.
+
+## **Other Notes**
+
+- Regularly review and refactor code for maintainability.
+- Consider both performance and user experience for every new feature.

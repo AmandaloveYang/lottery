@@ -1,0 +1,52 @@
+# 依赖相关
+node_modules      # npm/yarn 依赖包目录
+.cursorrules      # Cursor编辑器配置文件
+node_modules/.bin # 命令行工具目录
+package-lock.json # npm 包锁定文件
+
+# 构建输出
+dist     # 构建输出目录
+release/ # 发布文件目录
+
+# 系统文件
+.DS_Store # macOS系统文件
+
+# 环境配置文件
+.env         # 环境变量文件
+.env.local   # 本地环境变量
+.env.*.local # 所有本地环境变量文件
+
+# 日志文件
+npm-debug.log*  # npm调试日志
+yarn-debug.log* # yarn调试日志
+yarn-error.log* # yarn错误日志
+
+# IDE配置文件
+.idea     # WebStorm/IntelliJ配置
+.vscode   # VS Code配置
+*.suo     # Visual Studio用户配置
+*.ntvs*   # Node.js Tools for Visual Studio
+*.njsproj # Node.js项目文件
+*.sln     # Visual Studio解决方案
+*.sw?     # Vim临时文件
+
+# 测试覆盖率报告
+coverage/    # 测试覆盖率报告目录
+.nyc_output/ # NYC测试覆盖率输出
+
+# 命令行工具
+**/node_modules/.bin/* # 所有.bin目录下的文件
+*.cmd                  # Windows命令文件
+*.ps1                  # PowerShell脚本
+acorn*
+asar*
+autoprefixer*
+browserslist*
+conc*
+concurrent*
+node_modules
+
+# Git 相关
+.git/index.lock
+.git/COMMIT_EDITMSG
+.git/*.lock
